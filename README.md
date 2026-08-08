@@ -1,31 +1,56 @@
 # Ya Sabes — *You already know this.*
 
+**Live:** https://ya-sabes-282837028733.us-west1.run.app
 **Excelsior District, San Francisco.**
 
-People here are being told AI will take their job. Nobody is telling them the useful thing: the hard part of working with AI is a skill they already have, and they've been doing it for years under a different name.
+---
 
-Ya Sabes takes the work someone has actually done and shows it back to them in AI's terms — then explains how the systems work using nothing but the vocabulary of their own job.
+## What it is
 
-For a bookkeeper:
+A website where you type the job you do, and it shows you the AI skills you already have.
 
-> **A hallucination** — *It's a temp who invents a vendor name rather than admit they can't read the receipt.* It isn't lying. It's filling a blank. Which is exactly why you reconcile everything — you've been defending against this your whole career.
+That's the whole product. One input, one page back.
 
-## What it does
+## The problem
 
-Type the work you've done. You get four things:
+People are being told AI is coming for their job. Nobody is telling them the useful part: **the hard skill in working with AI is one they already have**, and they've been doing it for years under a different name.
 
-1. **Skills you already have** — not skills to acquire. Coding a charge to the right account *is* classification. Reconciling to the bank statement *is* the verification instinct most AI users are missing.
-2. **How the systems actually work** — prompt, context window, hallucination, agent — explained with zero unglossed jargon, in the nouns of that specific job.
-3. **Two things you could learn by Friday** — free, under 30 minutes, phone-doable, with the literal text to paste in.
-4. **The part that stays yours** — the honest read on what doesn't automate, and why.
+A bookkeeper who reconciles to the bank statement has spent a career refusing to trust a number until it's checked against reality. That instinct is the single most valuable thing you can bring to an AI tool — and nobody has ever told her that.
 
-Then: **teach one person.** A script to say out loud to a cousin or a coworker. AI literacy in a neighborhood doesn't spread from a website.
+## What you get
+
+Type your work. The page returns four things:
+
+**1. Skills you already have.** Not skills to go get — ones you use every shift, under their industry names.
+
+> *Coding a charge to the right account* → **Classification**
+> *Catching the duplicate charge* → **Anomaly detection**
+
+**2. How the systems actually work.** The four words everyone throws around — prompt, context window, hallucination, agent — explained using only the nouns of your job. No jargon on the right-hand side.
+
+> **A hallucination**, for a dental hygienist:
+> *"It's a temp who charts a 3 on a tooth she never probed, because the note looked empty."*
+
+> **A hallucination**, for an auto body technician:
+> *"It's a parts guy who'd rather quote you a number than say he doesn't have the book."*
+
+Same concept. Different world. That translation is the product.
+
+**3. Two things you could learn by Friday.** Free, under 30 minutes, doable on a phone, with the exact text to paste in. Real tasks for that job — not "try ChatGPT."
+
+**4. The part that stays yours.** An honest read on what doesn't automate in this line of work, and why. If a job really is being automated, it says so.
+
+Then: **teach one person.** A sentence to say out loud to a cousin or a coworker. AI literacy in a neighborhood doesn't spread from a website.
 
 ## How it works
 
-A single Node service. `POST /api/analyze` calls the **Claude API** (`claude-opus-5`) with **structured outputs** — a JSON schema the model must satisfy — so any job title produces a correctly-shaped page with no parsing or repair loop. The system prompt carries the translation rules and one worked example as the quality bar.
+One Node service. `POST /api/analyze` sends the job title to the **Claude API** (`claude-opus-5`) with **structured outputs** — a JSON schema the response must satisfy — so any job produces a correctly-shaped page with no parsing or repair loop. The system prompt carries the translation rules and one worked example as the quality bar.
 
-Three layers keep a live demo safe: an in-memory cache, an automatic retry if a parameter combination is rejected, and ten hand-written profiles as a fallback if the model call fails. A green badge marks responses that came from a live call.
+Every page is written on the spot. Typing "auto body technician" generates that page fresh; nothing is pre-written for it.
+
+Three things keep a live demo safe: an in-memory cache so a repeated search is instant, and eleven hand-written profiles that render if the model call fails, so the page can never dead-end. A green badge marks a response that came from a live call.
+
+**A request takes about 30 seconds.** That's real generation, and the loading state says so.
 
 ## Run it
 
@@ -42,9 +67,17 @@ export ANTHROPIC_API_KEY=sk-ant-...
 ./deploy.sh          # Cloud Run, us-west1
 ```
 
+The key is only ever passed through the environment — locally via `export`, on Cloud Run as a service env var. It is never committed; `.gitignore` blocks `.env`, `*.pem`, `service-account*.json`, and the rest.
+
 ## Where to keep going, in the neighborhood
 
-The app points people at real places that run free classes and computer access: the **Excelsior Branch Library (SFPL)**, **Mission Neighborhood Centers**, the **Excelsior Action Group**, and **SF OEWD**. Names only — check hours and eligibility with each organization directly.
+The page points at real places that run free classes, computer access, and job help: the **Excelsior Branch Library (SFPL)**, **Mission Neighborhood Centers**, the **Excelsior Action Group**, and **SF OEWD**. Names only — check hours and eligibility with each organization directly.
+
+## Honest notes
+
+- **Not an agent.** One API call. No tools, no loop, no autonomy.
+- The neighborhood organizations are listed by name with no invented hours, addresses, or class times.
+- Nothing here is legal, medical, or financial advice.
 
 ---
 
