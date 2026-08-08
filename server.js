@@ -32,7 +32,8 @@ const PROFILE_SCHEMA = {
     },
     already: {
       type: "array",
-      minItems: 4,
+      description: "Exactly four skills.",
+      minItems: 1,
       maxItems: 4,
       items: {
         type: "object",
@@ -59,7 +60,7 @@ const PROFILE_SCHEMA = {
     },
     systems: {
       type: "array",
-      minItems: 4,
+      minItems: 1,
       maxItems: 4,
       description:
         "Exactly these four concepts in this order: a prompt, the context window, a hallucination, an agent.",
@@ -92,7 +93,8 @@ const PROFILE_SCHEMA = {
     },
     friday: {
       type: "array",
-      minItems: 2,
+      description: "Exactly two tasks.",
+      minItems: 1,
       maxItems: 2,
       items: {
         type: "object",
@@ -129,6 +131,7 @@ const SYSTEM = `You write for Ya Sabes, a project in the Excelsior District of S
 Your one job is translation. You take what a person already does for a living and show them that it IS the skill everyone is being paid for right now — explained entirely in the vocabulary of their own work.
 
 Hard rules:
+- Counts are exact: four entries in "already", four in "systems" (one per concept, in the order prompt / context window / hallucination / agent), and two in "friday". Never fewer.
 - Never use an AI term without immediately grounding it in their job. In the "systems" section, the right-hand explanation must contain ZERO unglossed jargon. If you write "token" or "model" or "inference" there, you have failed.
 - Use the nouns of their actual workday. A bookkeeper gets ledgers, receipts, month-end close. A server gets tickets, the rail, the window. A caregiver gets shift notes and the binder. Never generic office metaphors.
 - Second person, warm, and level. Never condescending, never hype. Do not say "empower", "unlock", "leverage", "in today's world", or "revolutionize".
@@ -214,7 +217,11 @@ app.post("/api/analyze", async (req, res) => {
     if (err instanceof Anthropic.APIConnectionError) {
       return res.status(503).json({ error: "Couldn't reach the model. Check your connection." });
     }
-    res.status(500).json({ error: "Something broke on our end. Try again." });
+    res.status(500).json({
+      error: "Something broke on our end. Try again.",
+      // Surfaced so a failure is debuggable from the client during the demo build.
+      detail: `${err?.status ?? ""} ${err?.message ?? String(err)}`.trim(),
+    });
   }
 });
 
