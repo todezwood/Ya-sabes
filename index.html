@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ya Sabes — You already know this</title>
+<style>
+  :root{
+    --ink:#1a1613;
+    --ink-2:#4a423b;
+    --ink-3:#7d7268;
+    --paper:#faf6f0;
+    --card:#fffdfa;
+    --line:#e6dccf;
+    --terra:#c2542b;
+    --terra-soft:#fbeee8;
+    --gold:#b8860b;
+    --green:#2f6b4f;
+    --green-soft:#eaf3ee;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(60,40,20,.05), 0 8px 24px -12px rgba(60,40,20,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font:400 17px/1.6 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  .sans{font-family:ui-sans-serif,-apple-system,"Segoe UI",Inter,system-ui,sans-serif}
+
+  /* ---------- header ---------- */
+  header{padding:54px 0 28px;text-align:center}
+  .kicker{
+    font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;
+    font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--terra);font-weight:650;margin-bottom:14px;
+  }
+  h1{
+    font-size:clamp(44px,8vw,76px);line-height:.95;margin:0 0 6px;
+    letter-spacing:-.03em;font-weight:600;
+  }
+  h1 .es{color:var(--terra);font-style:italic}
+  .sub{font-size:clamp(19px,2.6vw,23px);color:var(--ink-2);margin:14px auto 0;max-width:600px}
+  .sub b{font-weight:600;color:var(--ink);border-bottom:2px solid var(--gold);padding-bottom:1px}
+
+  /* ---------- three-step flow ---------- */
+  .flow{
+    display:flex;align-items:stretch;justify-content:center;gap:0;
+    max-width:760px;margin:40px auto 0;
+  }
+  .step{
+    flex:1;text-align:center;padding:0 14px;
+  }
+  .step .ico{
+    width:44px;height:44px;margin:0 auto 12px;border-radius:50%;
+    background:var(--card);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;color:var(--terra);
+    box-shadow:var(--shadow);
+  }
+  .step .ico svg{width:22px;height:22px}
+  .step .t{
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:15px;font-weight:650;
+    color:var(--ink);letter-spacing:-.01em;line-height:1.3;
+  }
+  .step .d{font-size:14.5px;color:var(--ink-3);margin-top:4px;line-height:1.4}
+  .arrow{
+    display:flex;align-items:center;color:var(--line);padding-bottom:38px;flex:0 0 auto;
+  }
+  .arrow svg{width:26px;height:12px}
+
+  /* ---------- input ---------- */
+  .ask{margin:34px 0 10px}
+  .inputrow{display:flex;gap:10px;max-width:640px;margin:0 auto}
+  input[type=text]{
+    flex:1;font:400 19px/1.4 ui-serif,Georgia,serif;
+    padding:16px 18px;border:1.5px solid var(--line);border-radius:12px;
+    background:var(--card);color:var(--ink);box-shadow:var(--shadow);
+  }
+  input[type=text]:focus{outline:none;border-color:var(--terra);box-shadow:0 0 0 4px var(--terra-soft)}
+  button.go{
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:16px;font-weight:650;
+    padding:0 26px;border:0;border-radius:12px;background:var(--terra);color:#fff;
+    cursor:pointer;box-shadow:var(--shadow);transition:transform .08s ease, background .15s;
+  }
+  button.go:hover{background:#a8461f}
+  button.go:active{transform:translateY(1px)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px auto 0;max-width:680px}
+  .chip.hidden{display:none}
+  .chips.open .chip.hidden{display:inline-block}
+  .chip.more{border-style:dashed;color:var(--ink-3)}
+  .chip{
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:13.5px;
+    padding:7px 13px;border-radius:999px;border:1px solid var(--line);
+    background:var(--card);color:var(--ink-2);cursor:pointer;transition:.15s;
+  }
+  .chip:hover{border-color:var(--terra);color:var(--terra);background:var(--terra-soft)}
+
+  /* ---------- results ---------- */
+  #results{display:none;padding-bottom:40px}
+  #results.on{display:block;animation:rise .45s cubic-bezier(.2,.7,.3,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .youare{
+    text-align:center;margin:44px 0 8px;padding-top:34px;border-top:1px solid var(--line);
+  }
+  .youare .role{font-size:clamp(30px,5vw,44px);line-height:1.05;letter-spacing:-.02em;margin:0}
+  .youare .role em{color:var(--terra);font-style:normal}
+  .fuzzy{
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:13px;color:var(--ink-3);
+    margin-top:10px;
+  }
+
+  section.block{margin:46px 0 0}
+  .blockhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .num{
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:.14em;color:#fff;background:var(--ink);border-radius:999px;
+    padding:4px 10px;
+  }
+  h2{font-size:clamp(26px,3.6vw,34px);letter-spacing:-.02em;margin:0;font-weight:600}
+  .blocksub{color:var(--ink-3);font-size:16.5px;margin:6px 0 22px;max-width:640px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px 20px 18px;box-shadow:var(--shadow);
+  }
+  .card .theirs{
+    font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1.25;margin:0 0 6px;
+  }
+  .card .theirs:before{content:"“"}
+  .card .theirs:after{content:"”"}
+  .tag{
+    display:inline-block;font-family:ui-sans-serif,system-ui,sans-serif;
+    font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--green);background:var(--green-soft);border-radius:6px;padding:4px 8px;margin-bottom:12px;
+  }
+  .card p{margin:0;color:var(--ink-2);font-size:16px}
+
+  /* systems */
+  .sys{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .sysrow{display:grid;grid-template-columns:190px 1fr;gap:0;border-top:1px solid var(--line)}
+  .sysrow:first-child{border-top:0}
+  .sysrow .term{
+    padding:20px;background:#f6f0e7;border-right:1px solid var(--line);
+  }
+  .sysrow .term .word{
+    font-family:ui-sans-serif,system-ui,sans-serif;font-weight:700;font-size:15px;
+    letter-spacing:-.01em;display:block;
+  }
+  .sysrow .term .lit{
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:11.5px;color:var(--ink-3);
+    text-transform:uppercase;letter-spacing:.08em;margin-top:4px;display:block;
+  }
+  .sysrow .expl{padding:20px;font-size:16.5px;color:var(--ink-2)}
+  .sysrow .expl b{color:var(--ink);font-weight:600}
+
+  /* friday */
+  .friday{
+    background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);
+    border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);
+  }
+  .friday + .friday{margin-top:14px}
+  .friday h3{margin:0 0 4px;font-size:21px;letter-spacing:-.01em;font-weight:600}
+  .mins{
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;font-weight:700;
+    color:var(--gold);letter-spacing:.08em;text-transform:uppercase;
+  }
+  .dothis{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;line-height:1.55;
+    background:#f4efe6;border:1px solid var(--line);border-radius:10px;
+    padding:14px 15px;margin:12px 0 10px;color:var(--ink);white-space:pre-wrap;
+  }
+  .dothis .lead{
+    display:block;font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px;
+  }
+  .payoff{font-size:16px;color:var(--ink-2);margin:0}
+  .payoff b{color:var(--green);font-weight:600}
+  .copy{
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;font-weight:650;
+    background:transparent;border:1px solid var(--line);border-radius:8px;padding:6px 11px;
+    color:var(--ink-2);cursor:pointer;margin-top:2px;
+  }
+  .copy:hover{border-color:var(--terra);color:var(--terra)}
+
+  /* moat */
+  .moat{
+    margin-top:46px;background:var(--ink);color:#f6efe6;border-radius:var(--radius);
+    padding:30px 30px 28px;
+  }
+  .moat .lbl{
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:.16em;text-transform:uppercase;color:#e8a87c;margin-bottom:10px;
+  }
+  .moat p{margin:0;font-size:clamp(19px,2.6vw,24px);line-height:1.45;letter-spacing:-.01em}
+
+  /* pass it on */
+  .pass{
+    margin-top:46px;background:var(--terra-soft);border:1px solid #f0d7c9;
+    border-radius:var(--radius);padding:26px;
+  }
+  .pass h2{font-size:26px;margin-bottom:4px}
+  .pass p.lead{color:var(--ink-2);margin:6px 0 16px;font-size:16.5px}
+  .passcard{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;
+    font-size:18px;line-height:1.5;
+  }
+  .passcard .who{
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--terra);display:block;margin-bottom:8px;
+  }
+
+  /* footer */
+  footer{
+    border-top:1px solid var(--line);margin-top:56px;padding:30px 0 60px;
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:14.5px;color:var(--ink-3);
+  }
+  footer h3{
+    font-family:ui-serif,Georgia,serif;font-size:20px;color:var(--ink);margin:0 0 8px;font-weight:600;
+  }
+  footer ul{margin:10px 0 0;padding-left:18px}
+  footer li{margin-bottom:5px}
+  .note{font-size:12.5px;color:var(--ink-3);margin-top:16px;font-style:italic}
+
+  /* ---------- loading ---------- */
+  .loading{text-align:center;padding:56px 20px 20px}
+  .loading .dots{display:inline-flex;gap:7px;margin-bottom:18px}
+  .loading .dots i{
+    width:9px;height:9px;border-radius:50%;background:var(--terra);
+    animation:pulse 1.1s ease-in-out infinite;
+  }
+  .loading .dots i:nth-child(2){animation-delay:.16s}
+  .loading .dots i:nth-child(3){animation-delay:.32s}
+  @keyframes pulse{0%,100%{opacity:.25;transform:scale(.85)}50%{opacity:1;transform:scale(1)}}
+  .loading .say{font-size:22px;letter-spacing:-.01em;margin:0 0 6px}
+  .loading .sub2{
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:14px;color:var(--ink-3);margin:0;
+  }
+  .live{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--green);
+    background:var(--green-soft);border-radius:999px;padding:5px 11px;margin-top:14px;
+  }
+  .live b{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block}
+  .err{
+    max-width:600px;margin:26px auto 0;padding:16px 18px;border-radius:12px;
+    background:var(--terra-soft);border:1px solid #f0d7c9;color:#8c3d1c;
+    font-family:ui-sans-serif,system-ui,sans-serif;font-size:14.5px;text-align:center;
+  }
+
+  /* once you've searched, the hero gets out of the way */
+  body.searched header{padding-top:34px}
+  body.searched .flow,
+  body.searched .sub{display:none}
+  body.searched h1{font-size:clamp(30px,5vw,42px)}
+
+  @media (max-width:700px){
+    .flow{flex-direction:column;gap:18px;max-width:340px}
+    .arrow{padding:0;justify-content:center;transform:rotate(90deg)}
+    .step{padding:0}
+  }
+  @media (max-width:620px){
+    .sysrow{grid-template-columns:1fr}
+    .sysrow .term{border-right:0;border-bottom:1px solid var(--line)}
+    .inputrow{flex-direction:column}
+    button.go{padding:15px}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="kicker">Excelsior District &middot; San Francisco</div>
+    <h1><span class="es">Ya sabes.</span><br/>You already know this.</h1>
+    <p class="sub">The AI skills <b>you already have</b> — explained in the words of your own job.</p>
+
+    <div class="flow">
+      <div class="step">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.6-.7L3 21l1.9-5A8.4 8.4 0 0 1 12 3.1a8.4 8.4 0 0 1 9 8.4z"/></svg></div>
+        <div class="t">Name your work</div>
+        <div class="d">“Bookkeeper.”</div>
+      </div>
+      <div class="arrow"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M0 6h23m-4-4 4 4-4 4"/></svg></div>
+      <div class="step">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5C6.5 5 2.7 9.2 1.5 12c1.2 2.8 5 7 10.5 7s9.3-4.2 10.5-7c-1.2-2.8-5-7-10.5-7z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div class="t">See what you already know</div>
+        <div class="d">Reconciling the books <i>is</i> the AI skill.</div>
+      </div>
+      <div class="arrow"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M0 6h23m-4-4 4 4-4 4"/></svg></div>
+      <div class="step">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4M9 14.5l2 2 4-4"/></svg></div>
+        <div class="t">Learn one thing by Friday</div>
+        <div class="d">Free. 20 minutes. On your phone.</div>
+      </div>
+    </div>
+
+    <div class="ask">
+      <div class="inputrow">
+        <input id="job" type="text" placeholder="Bookkeeper, caregiver, driver…" autocomplete="off" />
+        <button class="go" id="goBtn">Show me</button>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+  </header>
+
+  <div id="results"></div>
+
+  <footer>
+    <h3>Where to keep going, in the neighborhood</h3>
+    <p>You don't need to do this alone, and you don't need to pay for it. Places in and around the Excelsior that run free classes, computer access, and job help:</p>
+    <ul>
+      <li><b>Excelsior Branch, San Francisco Public Library</b> — free computer and internet access, and free digital-skills classes</li>
+      <li><b>SFPL system-wide</b> — free LinkedIn Learning and tech-help appointments with a library card</li>
+      <li><b>Mission Neighborhood Centers</b> — workforce and family services, bilingual</li>
+      <li><b>Excelsior Action Group</b> — small-business support along Mission Street</li>
+      <li><b>SF Office of Economic &amp; Workforce Development (OEWD)</b> — free job training and placement programs</li>
+    </ul>
+    <p class="note">Check current hours, languages and eligibility directly with each organization — this page lists names only, not schedules. Nothing here is legal, medical, or financial advice.</p>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   DATA — one entry per line of work.
+   Each entry answers: what you already know, how the systems
+   work in YOUR vocabulary, what to learn by Friday, what stays
+   human.
+   ============================================================ */
+const JOBS = [
+{
+  id:"bookkeeper",
+  label:"Bookkeeper",
+  display:"a bookkeeper",
+  aliases:["bookkeeper","book keeper","accounting","accountant","accounts payable","payroll","quickbooks","tax preparer","office manager","admin","clerk","data entry","billing"],
+  already:[
+    {tag:"Classification", theirs:"Coding a charge to the right account",
+     p:"You look at a line item and decide which bucket it belongs in. That single move — put this thing in the right category — is what most AI systems do all day long. You've made that call ten thousand times."},
+    {tag:"Anomaly detection", theirs:"Catching the duplicate charge",
+     p:"You notice a number that doesn't feel right before you can explain why. Software can flag outliers, but it can't tell which ones actually matter. That judgment is the paid part."},
+    {tag:"Verification", theirs:"Reconciling to the bank statement",
+     p:"You never trust a total until it ties out. That instinct — don't accept output until it's checked against reality — is the number one thing missing in people who use AI badly."},
+    {tag:"Schema design", theirs:"Keeping the chart of accounts clean",
+     p:"AI is only as good as the categories it's handed. Designing consistent categories that hold up over time is literally what data teams get paid for. You maintain one."}
+  ],
+  systems:[
+    {word:"A prompt", lit:"the AI jargon", p:"<b>It's a memo to a new temp.</b> Write \"clean up the books\" and you get chaos. Write \"code these 40 Amex charges using last month's ledger as the example, and flag anything over $500\" and you get work you can actually use. The detail <i>is</i> the job — you already know that from training people."},
+    {word:"The context window", lit:"the AI jargon", p:"<b>It's the stack of paper you hand the temp.</b> They can only see what's on the desk. If last quarter's file is still in the cabinet, they don't know it exists — so they fill the gap with a guess. And the guess looks confident."},
+    {word:"A hallucination", lit:"the AI jargon", p:"<b>It's a temp who invents a vendor name rather than admit they can't read the receipt.</b> It isn't lying. It's filling a blank. Which is exactly why you reconcile everything — you've been defending against this your whole career."},
+    {word:"An agent", lit:"the AI jargon", p:"<b>It's the temp doing the whole month-end routine instead of one task.</b> Pull the statement, code the charges, draft the variance note, leave it on your desk for review. You stop doing the entering and start doing the approving. That's a promotion, not a replacement."}
+  ],
+  friday:[
+    {t:"Turn your month-end write-up into 15 minutes", m:"20 minutes",
+     do:"Open Claude.ai (free). Type:\n\n\"You are helping a bookkeeper. Here are this month's totals next to last month's. Write a five-bullet plain-English summary for a client who doesn't read financials. Flag anything that moved more than 15%, and say what it probably means.\"\n\nThen paste the numbers.",
+     pay:"The write-up you dread gets drafted in a minute — and you edit it, which means it's still your work. <b>Use client initials, never real names or account numbers.</b>"},
+    {t:"Build a coding rulebook you reuse every time", m:"30 minutes",
+     do:"In a note on your phone, write your 15 most common vendors and which account each one goes to. Add three rules you'd tell a new hire.\n\nPaste that note at the top of every AI chat before you ask for anything.",
+     pay:"That note has a name in the industry — it's a <b>system prompt</b>, and building good ones is a real, paid job skill. You just made your first one."}
+  ],
+  moat:"No one is going to let software sign off on a client's books. The signature, the call on a gray-area deduction, the phone call when something's wrong — that stays yours. AI takes the typing, not the responsibility."
+},
+{
+  id:"server",
+  label:"Restaurant server",
+  display:"a restaurant server",
+  aliases:["server","waiter","waitress","restaurant","food service","busser","host","hostess","bartender","barista","cashier","fast food","cook","line cook","kitchen"],
+  already:[
+    {tag:"Real-time personalization", theirs:"Reading a table in five seconds",
+     p:"One look and you know: rushed, celebrating, first date, allergic, watching the price. Companies spend millions building recommendation engines to approximate that. You do it with your eyes on the way over."},
+    {tag:"Prioritization", theirs:"Working seven tables at once",
+     p:"Fire that app, drop this check, water for twelve, the six-top is about to ask. That's live scheduling under pressure — one of the hardest problems in software, and you run it in your head every shift."},
+    {tag:"Precise instruction", theirs:"Ringing in a modified order",
+     p:"\"No onion, sauce on the side, allergy — celiac.\" You already know from hard experience that a vague ticket gets the wrong plate. That is the entire skill of talking to an AI."},
+    {tag:"Output review", theirs:"Never running a plate that looks wrong",
+     p:"You check it in the window before it hits the table. Same job, exactly, with anything an AI hands you."}
+  ],
+  systems:[
+    {word:"A prompt", lit:"the AI jargon", p:"<b>It's the ticket.</b> \"Chicken\" gets you anything. \"Chicken piccata, no capers, allergy ticket, fire with table 12\" gets you the right plate. An AI is a line cook who only knows what's written on the ticket."},
+    {word:"The context window", lit:"the AI jargon", p:"<b>It's the rail.</b> Only so many tickets fit up there. Push a new one on and the oldest falls off — and the cook doesn't remember the modification you called out twenty minutes ago."},
+    {word:"A hallucination", lit:"the AI jargon", p:"<b>It's a cook who's never made the dish and plates something that looks right.</b> Confident, beautiful, wrong. You'd catch it in the window. Catch AI the same way — check it before it goes out."},
+    {word:"An agent", lit:"the AI jargon", p:"<b>It's a busser who doesn't just clear.</b> They clear, reset, update the board, and tell the host table 12 is open — off one instruction. You supervise the routine instead of doing every step of it."}
+  ],
+  friday:[
+    {t:"Write the messages you hate writing", m:"15 minutes",
+     do:"Open Claude.ai (free). Type:\n\n\"Write a short, polite text asking my manager to swap Saturday dinner for Sunday brunch. Friendly, not desperate, three sentences.\"",
+     pay:"The same trick handles rent letters, school emails, landlord disputes, and unemployment forms. <b>This is the skill that pays off outside work first.</b>"},
+    {t:"Build a menu cheat sheet — in two languages", m:"25 minutes",
+     do:"Type:\n\n\"Here are 12 dishes. For each, write a one-line description a guest would like, the allergens, and one wine or drink pairing. Then give me the whole thing again in Spanish.\"\n\nThen paste the menu.",
+     pay:"You just did structured data work and translation — <b>two things people are paid for</b> — in under half an hour."}
+  ],
+  moat:"The table having a bad night. The regular whose order you already started. The read that says comp the dessert. Hospitality is the part of the job that isn't information, which is exactly why it doesn't automate."
+},
+{
+  id:"caregiver",
+  label:"Caregiver / home health aide",
+  display:"a caregiver",
+  aliases:["caregiver","home health","health aide","cna","nursing assistant","elder care","hospice","personal care","in home support","ihss","nurse","medical assistant","patient care"],
+  already:[
+    {tag:"Anomaly detection", theirs:"Knowing something's off before the chart does",
+     p:"A change in appetite. A different walk. Quieter than usual. Health AI companies raise millions trying to detect what you notice from the doorway."},
+    {tag:"Longitudinal data", theirs:"Your daily notes",
+     p:"Consistent observation of the same person over months is, in technical terms, a dataset. You've been building one by hand, and it's the kind that's hardest to get."},
+    {tag:"Rules plus judgment", theirs:"Following the med schedule — and calling the nurse when it doesn't fit",
+     p:"You follow the protocol exactly, and you know when the protocol doesn't cover the situation. That combination is precisely the human role in every serious AI system."},
+    {tag:"Translation", theirs:"Explaining the doctor to the family",
+     p:"You take dense expert language and make it land for a scared son on the phone. That is the highest-value AI skill there is, and you do it without thinking about it."}
+  ],
+  systems:[
+    {word:"A prompt", lit:"the AI jargon", p:"<b>It's the handoff note to the next shift.</b> \"She's fine\" helps nobody. \"Ate half of breakfast, refused the 2pm walk, mentioned her left hip twice\" gets the next person doing the right thing. AI needs the same handoff you'd write for a coworker."},
+    {word:"The context window", lit:"the AI jargon", p:"<b>It's what's in the binder versus what's in your head.</b> If it isn't written down, the next aide doesn't know it. AI only knows what's in the message in front of it — everything else, it fills in."},
+    {word:"A hallucination", lit:"the AI jargon", p:"<b>It's an aide who doesn't want to admit they didn't check, so they write a number that seems right.</b> Never let AI near a dose, a diagnosis, or a med list without you verifying it against the real source. This one isn't optional."},
+    {word:"An agent", lit:"the AI jargon", p:"<b>It's the paperwork doing itself.</b> It drafts the shift summary from your bullet points, flags what changed since Monday, and leaves it for you to correct and sign. The charting shrinks; the care doesn't."}
+  ],
+  friday:[
+    {t:"Turn six bullets into a clean shift note", m:"15 minutes",
+     do:"Open Claude.ai (free). Type:\n\n\"Turn these observations into a clear, professional caregiver shift note. Keep every fact exactly as written. Add nothing that isn't here.\"\n\nThen paste your bullets.",
+     pay:"Thirty minutes of end-of-shift writing becomes five. <b>Never paste a client's real name, address, or medical record number.</b> Use initials."},
+    {t:"Translate the doctor for the family", m:"15 minutes",
+     do:"Type:\n\n\"Explain this discharge instruction to a worried family member at an 8th-grade reading level, in both English and Spanish. Then list three questions they should ask the doctor at the follow-up.\"",
+     pay:"You become the person the family trusts most in the room. <b>That's what gets you referrals and raises.</b>"}
+  ],
+  moat:"Presence. Touch. Being the one who noticed. There is no version of this work where the software sits with someone at three in the morning."
+},
+{
+  id:"barber",
+  label:"Barber / stylist",
+  display:"a barber or stylist",
+  aliases:["barber","stylist","hair","salon","cosmetologist","nail tech","nails","esthetician","beauty","braider","makeup"],
+  already:[
+    {tag:"Requirement gathering", theirs:"The consultation",
+     p:"\"Just a trim\" means five different things. You already know to ask how short on the sides, how they style it in the morning, and can I see a photo. Getting a clear ask out of a person who can't describe what they want — that's the job title people are hiring for right now."},
+    {tag:"Iterative refinement", theirs:"Cut, check, adjust",
+     p:"You never do it in one pass. You work, step back, correct. That's exactly how good AI work happens — nobody who's good at this accepts the first answer."},
+    {tag:"Pattern recognition", theirs:"Face shape, texture, growth pattern",
+     p:"You read physical patterns and predict how they'll behave in two weeks. That's forecasting from visual input."},
+    {tag:"Customer memory", theirs:"Your book",
+     p:"You're running a customer database in your head — who's due, who hated the fade, who tips, who brings their kid. That's a CRM. You just haven't been paid for it as one."}
+  ],
+  systems:[
+    {word:"A prompt", lit:"the AI jargon", p:"<b>It's the consultation.</b> You'd never start cutting off \"just a trim.\" You ask for the number on the guard and the photo. Talk to AI the same way — vague in, wrong out."},
+    {word:"The context window", lit:"the AI jargon", p:"<b>It's the client's history.</b> If you don't remember she hated the last color, you'll do it again. AI forgets everything the second the chat closes — unless you tell it again."},
+    {word:"A hallucination", lit:"the AI jargon", p:"<b>It's someone who's never done the cut saying \"yeah, I got you.\"</b> Confidence isn't competence. Check the details AI gives you the way you'd check a color formula before you mix it."},
+    {word:"An agent", lit:"the AI jargon", p:"<b>It's a front desk you don't pay for.</b> It books, reminds, chases no-shows, and posts your work — while you're in the chair with someone."}
+  ],
+  friday:[
+    {t:"Fill your slow Tuesday", m:"20 minutes",
+     do:"Open Claude.ai (free). Type:\n\n\"Write 5 Instagram captions for a barber in the Excelsior, San Francisco. Warm, not salesy. Mention walk-ins welcome on Tuesdays. Give me a Spanish version of each.\"",
+     pay:"A week of posts in one sitting, in your voice and your neighborhood's languages."},
+    {t:"Stop losing clients quietly", m:"25 minutes",
+     do:"Type:\n\n\"I'm a barber. Write a friendly text to a client I haven't seen in three months. Not guilt-trippy. Give me three versions — casual, professional, and one with a small offer.\"",
+     pay:"A rebooking script is <b>the highest-return thing in a chair-rental business.</b> One returning client covers a month of this."}
+  ],
+  moat:"Hands on a head. Trust built over years. The conversation people come in for as much as the cut. That chair is the least automatable place in the neighborhood."
+},
+{
+  id:"driver",
+  label:"Driver / delivery",
+  display:"a driver",
+  aliases:["driver","delivery","uber","lyft","doordash","rideshare","truck","courier","instacart","amazon flex","muni","bus driver","taxi","moving"],
+  already:[
+    {tag:"Route optimization", theirs:"Knowing the streets",
+     p:"You know the double-park spot, the hill to skip at 5pm, the block where the app's directions are wrong. Maps AI still doesn't know the gate code — you do."},
+    {tag:"Replanning under uncertainty", theirs:"The order changes and you adjust",
+     p:"Constant re-planning with incomplete information is one of the hardest open problems in AI. You solve it every shift, while driving."},
+    {tag:"Edge cases", theirs:"The address that doesn't exist",
+     p:"The locked lobby, the dog, the customer who won't answer. Automated systems fail exactly here — which is why humans get paid to handle it."},
+    {tag:"Data collection", theirs:"Photo proof and timestamps",
+     p:"Every drop you document is labeled training data. You've been feeding these systems for years. Worth knowing what that's worth."}
+  ],
+  systems:[
+    {word:"A prompt", lit:"the AI jargon", p:"<b>It's the drop-off instruction.</b> \"Leave at door\" versus \"gate code 4412, go around back, dog is friendly, ring twice.\" One of those gets it done right the first time. That's the whole difference between a bad prompt and a good one."},
+    {word:"The context window", lit:"the AI jargon", p:"<b>It's the turn-by-turn on your phone.</b> It shows the next move, not the whole day. AI works the same way — it only sees what you just told it, not yesterday's conversation."},
+    {word:"A hallucination", lit:"the AI jargon", p:"<b>It's the GPS confidently routing you onto a street that's been closed for two years.</b> Not lying — out of date, and it won't say so. Verify anything AI tells you about a real place, a price, or a rule."},
+    {word:"An agent", lit:"the AI jargon", p:"<b>It's the app work doing itself.</b> Instead of you tapping through five platforms, it compares your actual earnings, works out which one paid best per hour after gas, and tells you where to be on Friday night."}
+  ],
+  friday:[
+    {t:"Find out what you actually earn", m:"25 minutes",
+     do:"Open Claude.ai (free). Type:\n\n\"I drove 41 hours last week and made $980. Gas was $150 and I put about 700 miles on my car. Estimate my real hourly rate including the IRS mileage rate for wear and depreciation. Then tell me what I'd need to gross to clear $25/hour.\"\n\n(Use your own numbers.)",
+     pay:"The number no platform will ever show you. <b>People change what they drive for after seeing it once.</b>"},
+    {t:"Fight a deactivation or a bad rating", m:"20 minutes",
+     do:"Type:\n\n\"Write a clear, professional appeal to a delivery platform's support team. Calm, facts only, no emotion. Ask for a specific human review and state what I want as the outcome.\"\n\nThen describe what happened.",
+     pay:"This exact skill wins real money back. <b>Most appeals fail because of tone, not facts.</b>"}
+  ],
+  moat:"The locked gate. The customer who needs it carried in. The call you make when the app is just wrong. And the honest part: the paperwork side of your work can get easier today, which is where to put your time."
+},
+{
+  id:"childcare",
+  label:"Childcare / daycare",
+  display:"a childcare provider",
+  aliases:["childcare","child care","daycare","day care","babysitter","nanny","preschool","early childhood","after school","au pair"],
+  already:[
+    {tag:"Adaptive explanation", theirs:"Explaining it four different ways until it lands",
+     p:"You don't repeat yourself louder — you change the approach for the kid in front of you. That flexibility is the core AI-literacy skill, and most adults don't have it."},
+    {tag:"Behavioral prediction", theirs:"You see the 3pm meltdown coming",
+     p:"You've learned each child's pattern well enough to intervene before it happens. That's forecasting from observed behavior, which is most of what applied AI actually is."},
+    {tag:"Resource allocation", theirs:"Eight kids, different needs, one of you",
+     p:"You allocate attention under hard constraints, continuously, and reallocate the moment something changes."},
+    {tag:"Safety verification", theirs:"You count heads",
+     p:"You never assume. In any system where mistakes are expensive, that habit is the whole job — and it's what makes someone trustworthy with AI."}
+  ],
+  systems:[
+    {word:"A prompt", lit:"the AI jargon", p:"<b>It's giving instructions to a four-year-old.</b> \"Clean up\" gets you nothing. \"Put the red blocks in the blue bin, then come sit on the carpet\" gets you a clean room. AI takes instructions exactly as literally as a four-year-old does."},
+    {word:"The context window", lit:"the AI jargon", p:"<b>It's what the substitute knows.</b> She has the sheet you left and nothing else. She doesn't know Marco needs a warning before transitions unless you wrote it down."},
+    {word:"A hallucination", lit:"the AI jargon", p:"<b>It's a kid telling you what happened at snack.</b> Total certainty, some of it invented, no intent to lie. Charming at four. Not charming in a medical or legal answer."},
+    {word:"An agent", lit:"the AI jargon", p:"<b>It's the admin half of your job, handled.</b> The weekly parent newsletter, daily reports drafted from your notes, a reminder about which immunization forms expire this month. You review and send."}
+  ],
+  friday:[
+    {t:"Parent updates in ten minutes", m:"15 minutes",
+     do:"Open Claude.ai (free). Type:\n\n\"Turn these notes into a warm daily update for parents. One short paragraph per child. Positive but honest. Then give me a Spanish version.\"\n\nThen paste your notes.",
+     pay:"The most-hated hour of your week, gone. <b>Use first initials only — never full names.</b>"},
+    {t:"Script the hard conversation before you have it", m:"20 minutes",
+     do:"Type:\n\n\"Help me script a kind but firm conversation with a parent who is consistently 40 minutes late at pickup. Give me three versions: gentle, firm, and final notice.\"",
+     pay:"You walk in with the words already ready. <b>That's the difference between losing the family and fixing it.</b>"}
+  ],
+  moat:"Nobody is putting a machine in charge of a room of toddlers. Licensing, trust, and the simple fact that parents want a person — that's about as durable as work gets."
+},
+{
+  id:"shop",
+  label:"Small shop owner",
+  display:"a small business owner",
+  aliases:["shop","store","owner","small business","retail","corner store","bodega","market","restaurant owner","entrepreneur","vendor","food truck","self employed","mechanic","landscaper","contractor","handyman","construction"],
+  already:[
+    {tag:"Demand forecasting", theirs:"You stock up before the first of the month",
+     p:"You know what moves before a game, after payday, in the rain. That's demand forecasting — an entire industry of software tries to do what you do from behind the counter."},
+    {tag:"Constrained optimization", theirs:"Deciding what gets shelf space",
+     p:"Limited space, limited cash, competing products. Every choice is a trade-off you're already making with real money on the line."},
+    {tag:"Segmentation", theirs:"Knowing your regulars",
+     p:"You know who buys what, who pays cash, who you extend credit to. That's customer segmentation, done with actual relationships instead of a spreadsheet."},
+    {tag:"Pricing judgment", theirs:"Knowing what this block will pay",
+     p:"Local pricing sense is knowledge no national algorithm has. It's genuinely yours."}
+  ],
+  systems:[
+    {word:"A prompt", lit:"the AI jargon", p:"<b>It's sending your nephew to the cash-and-carry.</b> \"Get drinks\" comes back wrong. \"Two cases of Jarritos, mango and tamarind, only if they're under $22 a case\" comes back right."},
+    {word:"The context window", lit:"the AI jargon", p:"<b>It's what the person behind the counter knows while you're out.</b> If it's not on the note you left, they'll make their own call — and it might be a bad one."},
+    {word:"A hallucination", lit:"the AI jargon", p:"<b>It's a supplier rep quoting you a price with total confidence and being wrong.</b> Never act on an AI answer about taxes, permits, or licensing without checking the real source. Costs are real here."},
+    {word:"An agent", lit:"the AI jargon", p:"<b>It's the back office running itself.</b> Watches sales, drafts the reorder, writes the vendor email, flags the slow movers — and you approve it from your phone between customers."}
+  ],
+  friday:[
+    {t:"See what's actually making you money", m:"30 minutes",
+     do:"Open Claude.ai (free). Type:\n\n\"Here is a month of sales by item with my cost and my price. Rank my top 10 by profit, not by volume. Then tell me five items I should consider dropping and why.\"\n\nThen paste the list.",
+     pay:"Most small shops have never once seen this view. <b>Volume and profit are almost never the same list.</b>"},
+    {t:"Get found by people three blocks away", m:"20 minutes",
+     do:"Type:\n\n\"Write my Google Business listing for a corner store in the Excelsior, San Francisco. Then write five review replies — three for good reviews, two for angry ones — warm and professional, in English and Spanish.\"",
+     pay:"Search and reviews are how new customers find you now. <b>This is the cheapest marketing that exists.</b>"}
+  ],
+  moat:"You're the only one who knows this block. The relationships, the credit you extend, the fact that people come here because it's you — no algorithm can buy that, and no chain can copy it."
+},
+{
+  id:"schoolaide",
+  label:"School aide / teacher",
+  display:"a school aide",
+  aliases:["teacher","school aide","teachers aide","paraeducator","para","tutor","instructional aide","substitute","counselor","librarian","education","professor","special ed"],
+  already:[
+    {tag:"Differentiation", theirs:"The same concept, five different ways",
+     p:"You explain it visually for one kid, as a story for another, step by step for a third. Rephrasing until it lands is the exact skill that separates people who get good AI results from people who give up."},
+    {tag:"Evaluation", theirs:"Knowing if they actually got it",
+     p:"You can tell in ten seconds whether a kid understood or is just nodding. Judging quality of output is the hardest, most in-demand part of AI work right now."},
+    {tag:"Task decomposition", theirs:"Breaking the assignment into steps",
+     p:"You never hand a fourth grader \"write an essay.\" You scaffold it. That is precisely how you get usable work out of an AI."},
+    {tag:"Context awareness", theirs:"Knowing which kid is hungry and which is defiant",
+     p:"Same behavior, different cause, different response. Reading context before acting is the judgment layer no system has."}
+  ],
+  systems:[
+    {word:"A prompt", lit:"the AI jargon", p:"<b>It's scaffolding an assignment.</b> \"Write an essay\" gets mush. \"Topic sentence, three reasons, one example each, under 200 words\" gets something usable. AI needs the same scaffold your students do."},
+    {word:"The context window", lit:"the AI jargon", p:"<b>It's the sub plans.</b> AI only knows what's on the page in front of it. It doesn't know this class, this kid, or what happened last week — unless you write it down."},
+    {word:"A hallucination", lit:"the AI jargon", p:"<b>It's the student who didn't do the reading writing a confident paragraph anyway.</b> Reads beautifully, facts invented. This is exactly why AI can't be trusted to grade or fact-check without you."},
+    {word:"An agent", lit:"the AI jargon", p:"<b>It's your prep period back.</b> One worksheet turned into three reading levels, the parent email drafted in two languages, the sub plan written from your outline — and you adjust and approve."}
+  ],
+  friday:[
+    {t:"One worksheet, three reading levels", m:"25 minutes",
+     do:"Open Claude.ai (free). Type:\n\n\"Take this 4th-grade reading passage and rewrite it at 2nd, 4th, and 6th grade levels. Keep the same content and the same vocabulary words. Then write four comprehension questions for each level.\"\n\nThen paste the passage.",
+     pay:"Differentiation that normally eats a whole prep period. <b>Never paste student work or student names.</b>"},
+    {t:"Parent emails, both languages", m:"15 minutes",
+     do:"Type:\n\n\"Write a short, warm email to a parent about a student who isn't completing homework. Non-blaming, specific about next steps, offer a time to talk. Give me English and Spanish versions.\"",
+     pay:"Bilingual family communication is <b>the skill that gets aides moved into coordinator roles.</b>"}
+  ],
+  moat:"Kids learn from people they trust. Classroom management, noticing the kid who needs noticing, being the adult who shows up — none of that is a content problem, so none of it is an AI problem."
+},
+{
+  id:"warehouse",
+  label:"Warehouse / stocking",
+  display:"someone in warehouse and logistics work",
+  aliases:["warehouse","stocking","stocker","forklift","logistics","shipping","receiving","inventory","packer","picker","distribution","factory","assembly","production","janitor","maintenance"],
+  already:[
+    {tag:"Constraint solving", theirs:"Loading a pallet so nothing crushes",
+     p:"Weight, shape, fragility, unload order — all at once, in your head, in about four seconds. That's constraint optimization, and it's a well-paid specialty."},
+    {tag:"Bottleneck detection", theirs:"Knowing where the floor is jammed",
+     p:"You can point at the one station backing everything up. Operations software is built to find what you already see from across the room."},
+    {tag:"Error catching", theirs:"The mislabeled box",
+     p:"You notice when the count is off or the label doesn't match the contents. Automated systems miss precisely this, and it's expensive when they do."},
+    {tag:"Process knowledge", theirs:"How it actually gets done",
+     p:"You know the real process, not the one in the binder. That gap between documented and actual is worth serious money to anyone trying to improve or automate the operation."}
+  ],
+  systems:[
+    {word:"A prompt", lit:"the AI jargon", p:"<b>It's a pick ticket.</b> \"Get the boxes\" versus \"Aisle 4, bin 12, six units, SKU ending 331, don't stack over four high.\" The specific ticket is the one that ships correctly."},
+    {word:"The context window", lit:"the AI jargon", p:"<b>It's the clipboard for this shift.</b> Anything from last week isn't on it unless somebody put it there. AI starts every conversation with an empty clipboard."},
+    {word:"A hallucination", lit:"the AI jargon", p:"<b>It's the system saying there are 40 in stock.</b> You walk over. There are three. AI does that with facts — sounds certain, isn't. Walk over and check before you act on it."},
+    {word:"An agent", lit:"the AI jargon", p:"<b>It's the shift's paperwork, done.</b> Reads the day's orders, builds the pick route, flags what's short, drafts the message to the supplier — and you approve it."}
+  ],
+  friday:[
+    {t:"Write the SOP nobody ever wrote down", m:"25 minutes",
+     do:"Open Claude.ai (free). Type:\n\n\"I'm going to describe how we actually receive and stock a delivery. Turn it into a clear step-by-step SOP with a safety section, at an 8th-grade reading level, in English and Spanish.\"\n\nThen describe it in your own words.",
+     pay:"Writing SOPs is a supervisor's job. <b>Now there's a document with your name on it.</b> That's how the conversation about a promotion starts."},
+    {t:"Make your resume say what you actually do", m:"20 minutes",
+     do:"Type:\n\n\"Here's my job, described plainly. Rewrite it as five resume bullets with numbers, using the language that warehouse supervisor and operations job postings use.\"\n\nThen describe your work.",
+     pay:"Most resumes badly undersell real operations experience. <b>Same job, translated into the words that get callbacks.</b>"}
+  ],
+  moat:"Hands, eyes, and the judgment to stop the line when something's wrong. Automation is real in warehouses — which is exactly why moving toward the supervising, documenting, training side is the play, and you're closer to it than you think."
+},
+{
+  id:"cleaner",
+  label:"Housekeeper / cleaner",
+  display:"a housekeeper",
+  aliases:["housekeeper","cleaner","cleaning","janitorial","custodian","housekeeping","maid","domestic","laundry","hotel"],
+  already:[
+    {tag:"Quality standards", theirs:"Knowing what \"done\" looks like",
+     p:"You have a standard in your head and you check against it before you leave. Judging whether output is actually good enough is the single biggest bottleneck in AI work right now."},
+    {tag:"Sequencing", theirs:"Working a house so you never backtrack",
+     p:"Top to bottom, dry to wet, never cross your own path. That's route and process optimization, learned the hard way."},
+    {tag:"Client management", theirs:"Running your own book",
+     p:"Schedules, keys, preferences, who wants what left alone. You're operating a small business's entire customer system out of your head and your phone."},
+    {tag:"Protocol under risk", theirs:"Knowing what not to use on marble",
+     p:"Following exact procedure where a mistake is expensive and permanent. That discipline is exactly what makes someone safe to trust with a powerful tool."}
+  ],
+  systems:[
+    {word:"A prompt", lit:"the AI jargon", p:"<b>It's the note a client leaves.</b> \"Clean the kitchen\" versus \"kitchen — don't move anything on the desk, blue spray on the counters only, keep the cat inside.\" The specific note gets the job done right the first time."},
+    {word:"The context window", lit:"the AI jargon", p:"<b>It's today's note.</b> Last month's instruction about the guest room isn't on it. AI can't remember what you told it last week unless you say it again."},
+    {word:"A hallucination", lit:"the AI jargon", p:"<b>It's someone who says they know how to treat marble, doesn't, and ruins it — confidently.</b> Check anything AI tells you about a price, a chemical, or a law before you act on it."},
+    {word:"An agent", lit:"the AI jargon", p:"<b>It's the office side of your business, handled.</b> Quotes, scheduling, reminder texts, invoices, follow-ups — the part that keeps independent cleaners from growing."}
+  ],
+  friday:[
+    {t:"Quote a job in two minutes, not two days", m:"20 minutes",
+     do:"Open Claude.ai (free). Type:\n\n\"I clean homes in San Francisco. Write me a reusable quote template. Then use it to price a first-time deep clean of a 3-bedroom, 2-bath house, and write it as a text message I can send today.\"",
+     pay:"Quoting quickly and confidently is <b>how independent cleaners raise their rate.</b> Slow quotes lose jobs to whoever answered first."},
+    {t:"Get your own clients instead of an agency's", m:"25 minutes",
+     do:"Type:\n\n\"Write a simple one-page flyer and three Nextdoor posts for a house cleaning business in the Excelsior, San Francisco. Warm and trustworthy, mention insured and references available. English and Spanish versions.\"",
+     pay:"Going direct instead of through an agency <b>is the whole difference in what you take home.</b>"}
+  ],
+  moat:"Being trusted with someone's keys and their home. References that took years to earn. Nobody hires software to be inside their house."
+},
+{
+  id:"general",
+  label:"Something else",
+  display:"someone who works with their hands and their judgment",
+  aliases:["other","general","unemployed","looking","job","student","retired","volunteer","security","guard","receptionist","customer service","call center","sales"],
+  already:[
+    {tag:"Precise instruction", theirs:"Telling someone exactly what you need",
+     p:"Every job teaches this. Vague instructions get bad work, whether you're talking to a coworker or to an AI. If you've ever had to explain a task twice, you already know how to prompt."},
+    {tag:"Quality judgment", theirs:"Knowing when the work isn't right",
+     p:"You can look at a result and tell whether it's good enough. That sounds ordinary. It's the scarcest skill in AI right now — the machines can produce, they can't judge."},
+    {tag:"Pattern recognition", theirs:"Noticing when something's different today",
+     p:"Whatever you've done, you've built a sense of normal — and you notice when it breaks. That's exactly what detection systems are built to do, badly."},
+    {tag:"Working around the system", theirs:"Knowing the real process",
+     p:"Every workplace has the official way and the way it actually works. Knowing the difference is knowledge no software has, and it's the first thing anyone automating that work needs."}
+  ],
+  systems:[
+    {word:"A prompt", lit:"the AI jargon", p:"<b>It's the instructions you'd leave for someone covering your shift.</b> Short and vague, they'll get it wrong. Specific, with an example of what good looks like, and they'll get it right. That's the whole skill."},
+    {word:"The context window", lit:"the AI jargon", p:"<b>It's what's on the note you left.</b> AI knows what's in front of it and nothing else — not last week, not what you meant, not what everybody at your job already knows."},
+    {word:"A hallucination", lit:"the AI jargon", p:"<b>It's a confident person who won't admit they don't know.</b> They fill the blank with something plausible. So: never act on an AI answer about a price, a law, a date, or a medical question without checking the real source."},
+    {word:"An agent", lit:"the AI jargon", p:"<b>It's the difference between doing one task and running a routine.</b> Instead of asking for one thing at a time, you hand over the whole repetitive sequence and check the result. You go from doing to approving."}
+  ],
+  friday:[
+    {t:"Make it write something you've been avoiding", m:"15 minutes",
+     do:"Open Claude.ai (free). Type:\n\n\"Help me write a letter to my landlord about a repair that hasn't been fixed. Firm, polite, and clear about what I'm asking for and by when. Give me a Spanish version too.\"\n\n(Swap in whatever you've actually been putting off.)",
+     pay:"The fastest way past the fear is one real thing done. <b>Most people's first useful AI moment is personal, not professional.</b>"},
+    {t:"Make your experience legible", m:"25 minutes",
+     do:"Type:\n\n\"I'm going to describe every job I've had in plain language. Turn it into a resume with five strong bullets per role, using numbers where you can, aimed at [the kind of job you want].\"\n\nThen just talk about your work.",
+     pay:"Most people's resumes badly undersell them. <b>This is the single highest-return thing on this page.</b>"}
+  ],
+  moat:"Every job has a part that's information — that's the part that changes. And a part that's judgment, trust, presence, and knowing your people. That part is why you get hired, and it doesn't come out of a machine."
+}
+];
+
+/* ============================================================
+   Matching — never dead-end on unknown input.
+   ============================================================ */
+const norm = s => (s||"").toLowerCase().replace(/[^a-z\s]/g," ").replace(/\s+/g," ").trim();
+
+function findJob(input){
+  const q = norm(input);
+  if(!q) return {job:JOBS.find(j=>j.id==="general"), exact:false, guessed:true};
+
+  let best = null, bestScore = 0;
+  for(const job of JOBS){
+    for(const a of job.aliases){
+      const al = norm(a);
+      let score = 0;
+      if(q === al) score = 100;
+      else if(q.includes(al) || al.includes(q)) score = 60 + al.length;
+      else {
+        // token overlap
+        const qt = q.split(" "), at = al.split(" ");
+        const hits = qt.filter(t => t.length>3 && at.some(x => x.startsWith(t.slice(0,4)) || t.startsWith(x.slice(0,4)))).length;
+        score = hits * 15;
+      }
+      if(score > bestScore){ bestScore = score; best = job; }
+    }
+  }
+  if(!best || bestScore < 15) return {job:JOBS.find(j=>j.id==="general"), exact:false, guessed:true};
+  return {job:best, exact:bestScore>=100, guessed:false};
+}
+
+/* ============================================================
+   Render
+   ============================================================ */
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+/* Normalize both sources into one shape whose fields are final, safe HTML.
+   Baked profiles are authored here, so their intentional <b> tags pass through.
+   Model output is escaped, and its bold lead is assembled by us. */
+function fromBaked(j){
+  return {
+    display: esc(j.display),
+    already: j.already.map(a => ({tag:esc(a.tag), theirs:esc(a.theirs), p:a.p})),
+    systems: j.systems.map(s => ({word:esc(s.word), p:s.p})),
+    friday:  j.friday.map(f => ({t:esc(f.t), m:esc(f.m), doThis:esc(f.do), pay:f.pay})),
+    moat: j.moat,
+    live: false
+  };
+}
+function fromApi(d){
+  return {
+    display: esc(d.display),
+    already: d.already.map(a => ({tag:esc(a.tag), theirs:esc(a.theirs), p:esc(a.p)})),
+    systems: d.systems.map(s => ({word:esc(s.word), p:`<b>${esc(s.lead)}</b> ${esc(s.body)}`})),
+    friday:  d.friday.map(f => ({t:esc(f.t), m:esc(f.m), doThis:esc(f.doThis), pay:esc(f.pay)})),
+    moat: esc(d.moat),
+    live: true,
+    cached: !!d.cached
+  };
+}
+
+const RESULTS = document.getElementById("results");
+
+function showLoading(typed){
+  document.body.classList.add("searched");
+  RESULTS.innerHTML = `
+    <div class="loading">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <p class="say">Reading the work of <em>${esc(typed)}</em>…</p>
+      <p class="sub2">Finding the AI skills already in it. About ten seconds.</p>
+    </div>`;
+  RESULTS.classList.add("on");
+  RESULTS.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+/* Live first. If the model call fails for any reason, fall back to the
+   written-by-hand profile so the page never dead-ends. */
+async function run(typed){
+  const q = (typed || "").trim();
+  if(!q) return;
+  showLoading(q);
+  try{
+    const r = await fetch("/api/analyze", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({job: q})
+    });
+    if(!r.ok) throw new Error((await r.json().catch(()=>({}))).error || "request failed");
+    render(fromApi(await r.json()), q, {});
+  }catch(err){
+    console.error("[ya-sabes] live call failed, falling back to written profile:", err);
+    const {job, exact, guessed} = findJob(q);
+    render(fromBaked(job), q, {guessed, exact, offline:true});
+  }
+}
+
+function render(p, typed, meta){
+  const shown = typed.trim() || "your work";
+  const job = p;
+
+  const already = job.already.map(a => `
+    <div class="card">
+      <span class="tag">${a.tag}</span>
+      <p class="theirs">${a.theirs}</p>
+      <p>${a.p}</p>
+    </div>`).join("");
+
+  const sys = job.systems.map(s => `
+    <div class="sysrow">
+      <div class="term"><span class="word">${s.word}</span><span class="lit">what they call it</span></div>
+      <div class="expl">${s.p}</div>
+    </div>`).join("");
+
+  const fri = job.friday.map((f,i) => `
+    <div class="friday">
+      <span class="mins">${f.m} &middot; free</span>
+      <h3>${f.t}</h3>
+      <div class="dothis" id="do${i}"><span class="lead">Do exactly this</span>${f.doThis}</div>
+      <button class="copy" data-copy="do${i}">Copy this</button>
+      <p class="payoff">${f.pay}</p>
+    </div>`).join("");
+
+  const note = job.live
+    ? `<span class="live"><b></b>Written just now for "${esc(shown)}"</span>`
+    : (meta.offline
+        ? `<p class="fuzzy">The model didn't answer, so this is the written-in-advance version for the closest kind of work. Everything below still applies.</p>`
+        : "");
+
+  RESULTS.innerHTML = `
+    <div class="youare">
+      <p class="role">Here's what <em>${job.display}</em> already knows about AI.</p>
+      ${note}
+    </div>
+
+    <section class="block">
+      <div class="blockhead"><span class="num">01</span><h2>Skills you already have</h2></div>
+      <p class="blocksub">Not skills you could get. Skills you use every single shift — they just have different names in the job postings.</p>
+      <div class="grid">${already}</div>
+    </section>
+
+    <section class="block">
+      <div class="blockhead"><span class="num">02</span><h2>How the systems actually work</h2></div>
+      <p class="blocksub">The four words people throw around, explained only in the language of your job. No jargon on the right-hand side.</p>
+      <div class="sys">${sys}</div>
+    </section>
+
+    <section class="block">
+      <div class="blockhead"><span class="num">03</span><h2>Two things you could learn by Friday</h2></div>
+      <p class="blocksub">Free, under 30 minutes each, and you can do them on a phone. Copy the text and paste it in.</p>
+      ${fri}
+    </section>
+
+    <div class="moat">
+      <div class="lbl">The part that stays yours</div>
+      <p>${job.moat}</p>
+    </div>
+
+    <div class="pass">
+      <h2>Now teach one person</h2>
+      <p class="lead">AI literacy in a neighborhood doesn't spread from a website. It spreads from someone you trust saying it out loud. Pick one person this week — a cousin, a coworker, the person at the counter — and tell them this:</p>
+      <div class="passcard">
+        <span class="who">Say it exactly like this</span>
+        “You already do the hard part. ${job.already[0].theirs} — that's the same thing these AI systems do all day. The tool just types faster than you. It still needs you to tell it what good looks like.”
+      </div>
+    </div>
+  `;
+
+  RESULTS.classList.add("on");
+  document.body.classList.add("searched");
+  document.querySelectorAll(".copy").forEach(b => {
+    b.addEventListener("click", () => {
+      const el = document.getElementById(b.dataset.copy);
+      const txt = el.innerText.replace(/^Do exactly this\s*/i,"").trim();
+      navigator.clipboard?.writeText(txt);
+      const old = b.textContent; b.textContent = "Copied ✓";
+      setTimeout(()=>b.textContent=old, 1600);
+    });
+  });
+  RESULTS.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+/* ---- wiring ---- */
+const input = document.getElementById("job");
+document.getElementById("goBtn").addEventListener("click", () => run(input.value));
+input.addEventListener("keydown", e => { if(e.key === "Enter") run(input.value); });
+
+const chipWrap = document.getElementById("chips");
+const VISIBLE = 5;
+JOBS.filter(j=>j.id!=="general").forEach((j,i) => {
+  const b = document.createElement("button");
+  b.className = "chip" + (i >= VISIBLE ? " hidden" : "");
+  b.textContent = j.label;
+  b.addEventListener("click", () => { input.value = j.label; run(j.label); });
+  chipWrap.appendChild(b);
+});
+const more = document.createElement("button");
+more.className = "chip more"; more.textContent = "more +";
+more.addEventListener("click", () => { chipWrap.classList.add("open"); more.remove(); });
+chipWrap.appendChild(more);
+</script>
+</body>
+</html>
