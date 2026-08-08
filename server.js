@@ -33,8 +33,6 @@ const PROFILE_SCHEMA = {
     already: {
       type: "array",
       description: "Exactly four skills.",
-      minItems: 1,
-      maxItems: 4,
       items: {
         type: "object",
         properties: {
@@ -60,8 +58,6 @@ const PROFILE_SCHEMA = {
     },
     systems: {
       type: "array",
-      minItems: 1,
-      maxItems: 4,
       description:
         "Exactly these four concepts in this order: a prompt, the context window, a hallucination, an agent.",
       items: {
@@ -94,8 +90,6 @@ const PROFILE_SCHEMA = {
     friday: {
       type: "array",
       description: "Exactly two tasks.",
-      minItems: 1,
-      maxItems: 2,
       items: {
         type: "object",
         properties: {
@@ -150,6 +144,18 @@ moat: "No one is going to let software sign off on a client's books. The signatu
 
 Match that level of specificity for whatever work you are given. If the input is vague, unclear, or not really a job, interpret it as generously as you can and write for the most likely kind of work it describes.`;
 
+/* The schema can't cap array lengths (structured outputs reject minItems and
+   maxItems), so the counts are enforced here: exactly one row per concept, in
+   a fixed order, and no duplicates. */
+const CONCEPTS = ["A prompt", "The context window", "A hallucination", "An agent"];
+
+function normalize(d) {
+  d.already = (d.already || []).slice(0, 4);
+  d.friday = (d.friday || []).slice(0, 2);
+  d.systems = CONCEPTS.map((c) => (d.systems || []).find((s) => s.word === c)).filter(Boolean);
+  return d;
+}
+
 /* ---- tiny in-memory cache so a repeated demo is instant ---- */
 const cache = new Map();
 const norm = (s) => s.toLowerCase().replace(/[^a-z\s]/g, " ").replace(/\s+/g, " ").trim();
@@ -196,7 +202,7 @@ app.post("/api/analyze", async (req, res) => {
     const text = message.content.find((b) => b.type === "text")?.text;
     if (!text) throw new Error("empty response");
 
-    const profile = JSON.parse(text);
+    const profile = normalize(JSON.parse(text));
     profile.model = message.model;
     profile.usage = {
       input: message.usage.input_tokens,
