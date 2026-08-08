@@ -1,6 +1,28 @@
+# dependencies
 node_modules/
 npm-debug.log*
+yarn-error.log*
+
+# secrets — the API key is passed via the environment, never committed
 .env
 .env.*
-.DS_Store
+.envrc
+*.pem
+*.key
+*.p12
+*.pfx
+secrets.json
+service-account*.json
+*-credentials.json
+*_credentials.json
+gha-creds-*.json
+.anthropic/
+
+# local tooling
 .claude/
+.vscode/
+.idea/
+
+# os
+.DS_Store
+Thumbs.db
